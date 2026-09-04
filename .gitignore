@@ -1,0 +1,11 @@
+# Java / Maven
+server/target/
+client/target/
+
+# Python
+.a2a_env/
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/

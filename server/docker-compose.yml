@@ -1,0 +1,37 @@
+services:
+
+  lgtm:
+    image: grafana/otel-lgtm
+    container_name: lgtm
+    ports:
+      - "3000:3000"   # Grafana
+      - "3100:3100"   # Loki
+      - "3200:3200"   # Tempo
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "9090:9090"   # Prometheus
+    restart: unless-stopped
+
+  string-utils-service:
+    build: .
+    container_name: string-utils-service
+    ports:
+      - "8080:8080"
+    environment:
+      LGTM_OTLP_ENDPOINT: http://lgtm:4318
+    depends_on:
+      - lgtm
+
+  alloy:
+    image: grafana/alloy:latest
+    container_name: alloy
+    ports:
+      - "12345:12345"    
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../alloy/config.alloy:/etc/alloy/config.alloy
+    command:
+      - run
+      - /etc/alloy/config.alloy
+    depends_on:
+      - lgtm
